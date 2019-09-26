@@ -11,6 +11,7 @@ from sklearn.externals import joblib
 
 
 # data = pd.read_csv('data/data_raw.csv', sep=',')
+#
 # cat_columns = ["DRG2", "GenderCode", "Ethnicity", "Domicile", "Residency", "arrival_dow","Posttake_dow", "PrincipalDiagnosis2",
 #                "month", "season", "GenMedAdmission", "EthnicityGroupMPIO","PatientAgeGroup10YearCategory","Team","Breached6HourIndicator",
 #                "RestHomeFlag", "DischargeDoctorID", "LengthOfStay", "ICUOccupiedHrs", "MET_CardiacArrest", "METNumber","MET_ImmediateOutcome", "KenepuruTransfer"]
@@ -18,24 +19,14 @@ from sklearn.externals import joblib
 # data = data.drop(drop_columns, axis = 1)
 # data = pd.get_dummies(data, prefix_sep="__", columns=cat_columns)
 #
-# data.to_csv("data_encoded.csv", index=False)
+# data.to_csv("data/data_encoded.csv", index=False)
 
-def test_Model(model, X_test, y_test):
-    y_pred = model.predict(X_test)
-    #y_pred = (y_pred > 0.5)
-    #cm = confusion_matrix(y_test, y_pred)
-
-    #print(cm)
-    #print(classification_report(y_test, y_pred))
-
-    return(y_pred)
-
-def get_Data(data):
-    ##data split
-    print(list(data.columns.values))
-
+def get_train_test(data):
     X = data.drop(['ReadmittedIn14Days'], axis=1)
     y = data['ReadmittedIn14Days']
+
+    names = list(X)
+    print(names)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, train_size=0.7, random_state=1)
 
@@ -51,7 +42,22 @@ def get_Data(data):
     print("X_train Shape : ", X_train.shape)
     print("X_test Shape : ", X_test.shape)
 
+    X_train = pd.DataFrame.from_records(X_train, columns=names)
+    X_test = pd.DataFrame.from_records(X_test, columns=names)
+    y_train = pd.DataFrame(y_train)
+    y_test = pd.DataFrame(y_test)
+
     return X_train, X_test, y_train, y_test
+
+def test_Model(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+    #y_pred = (y_pred > 0.5)
+    #cm = confusion_matrix(y_test, y_pred)
+
+    #print(cm)
+    #print(classification_report(y_test, y_pred))
+
+    return(y_pred)
 
 def get_NN(X_train, y_train):
     model = Sequential()
@@ -77,7 +83,7 @@ def get_NN(X_train, y_train):
     return model
 
 data = pd.read_csv('data/data_encoded.csv', sep=',')
-X_train, X_test, y_train, y_test = get_Data(data)
+X_train, X_test, y_train, y_test = get_train_test(data)
 print(collections.Counter(y_test))
 model = get_NN(X_train, y_train)
 y_pred = test_Model(model, X_test, y_test)
