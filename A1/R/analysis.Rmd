@@ -1,0 +1,35 @@
+---
+title: "Mercury Data"
+author: "Haylem Rayner"
+date: "August 29, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = False}
+full.all <- read.csv('data/fishermen.csv', header = T)
+full <- full.all[which(full.all$fisherman == "no"), -1]
+
+#full$fishmlwk <- cut(full$fishmlwk, c(0, 7, 8, 22), labels=c('< 7', '7', '>7'), right=F)
+#full$fishmlwk <- factor(full$fishmlwk)
+#full$fishpart <- factor(full$fishpart, labels =c('Muscle Only', 'Muscle & Sometimes Whole', 'Whole Fish'))
+
+full.tot <- full[, -7]
+full.me <- full[, -8]
+
+#model.total <- step(glm(full.tot$TotHg ~ ., data=full.tot, family=Gamma('log')), direction='backward', trace = F)
+model.methyl <- step(glm(full.me$MeHg ~ ., data=full.me, family=Gamma('log')), direction='backward', trace = F)
+#summary(model.total)
+summary(model.methyl)
+```
+
+```{r}
+confidence <- function(est, err){
+  return(c(exp(est - 1.96 * sqrt(err)), exp(est + 1.96 * sqrt(err))))
+}
+```
+
+Control and fishermen group have different trends for meals per week.

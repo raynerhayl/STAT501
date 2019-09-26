@@ -1,0 +1,1 @@
+data <- read.csv2('data/data_full.csv', header=TRUE, sep=',', stringsAsFactors = F)
